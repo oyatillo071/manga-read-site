@@ -2,7 +2,7 @@ const BASE_URL = "https://api.mangadex.org";
 
 // Store the API key as a constant
 const DEFAULT_API_KEY =
-  "personal-client-07c79c4f-d8da-4d98-8a23-8e5031297b5e-fb70a7d1";
+  process.env.NEXT_PUBLIC_MANGA_KEY;
 
 // Add this at the top of the file
 const FALLBACK_COVER_URL = "/placeholder.svg?height=400&width=300";
