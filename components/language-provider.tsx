@@ -1,29 +1,31 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { createContext, useContext, useEffect, useState } from "react"
+import { createContext, useContext, useEffect, useState } from "react";
 
 type LanguageContextType = {
-  language: string
-  setLanguage: (lang: string) => void
-  t: (key: string) => string
-}
+  language: string;
+  setLanguage: (lang: string) => void;
+  t: (key: string) => string;
+};
 
 const LanguageContext = createContext<LanguageContextType>({
   language: "en",
   setLanguage: () => {},
   t: (key) => key,
-})
+});
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [language, setLanguage] = useState("en")
-  const [translations, setTranslations] = useState<Record<string, Record<string, string>>>({})
+  const [language, setLanguage] = useState("en");
+  const [translations, setTranslations] = useState<
+    Record<string, Record<string, string>>
+  >({});
 
   useEffect(() => {
     // Load translations from local storage or set default
-    const storedLang = localStorage.getItem("language") || "en"
-    setLanguage(storedLang)
+    const storedLang = localStorage.getItem("language") || "en";
+    setLanguage(storedLang);
 
     // Load translation files
     const loadTranslations = async () => {
@@ -48,7 +50,6 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
           "common.submit": "Submit",
           "common.delete": "Delete",
           "common.edit": "Edit",
-          "common.search": "Search",
           "common.filter": "Filter",
           "common.sort": "Sort",
           "common.genre": "Genre",
@@ -135,7 +136,6 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
           "common.pornographic": "Pornographic",
           "common.gore": "Gore",
           "common.violence": "Violence",
-          "common.language": "Language",
           "common.sexual": "Sexual",
           "common.nudity": "Nudity",
           "common.drugs": "Drugs",
@@ -164,8 +164,6 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
           "common.sensitive": "Sensitive",
           "common.spoiler": "Spoiler",
           "common.spoilers": '  "Sensitive',
-          "common.spoiler": "Spoiler",
-          "common.spoilers": "Spoilers",
 
           // Auth related
           "auth.login": "Login",
@@ -232,7 +230,6 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
           "manga.trending": "Trending Manga",
           "manga.new": "New Manga",
           "manga.updated": "Updated Manga",
-          "manga.completed": "Completed Manga",
           "manga.ongoing": "Ongoing Manga",
           "manga.hiatus": "Hiatus Manga",
           "manga.cancelled": "Cancelled Manga",
@@ -269,7 +266,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
           "reader.rightToLeft": "Right to Left",
           "reader.verticalScroll": "Vertical Scroll",
           "reader.horizontalScroll": "Horizontal Scroll",
-        }
+        };
 
         const ruTranslations = {
           "common.home": "Главная",
@@ -291,7 +288,6 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
           "common.submit": "Отправить",
           "common.delete": "Удалить",
           "common.edit": "Редактировать",
-          "common.search": "Поиск",
           "common.filter": "Фильтр",
           "common.sort": "Сортировка",
           "common.genre": "Жанр",
@@ -319,7 +315,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
           "manga.featured": "Рекомендуемая манга",
           "manga.popular": "Популярная манга",
           "manga.updated": "Обновленная манга",
-        }
+        };
 
         const uzTranslations = {
           "common.home": "Bosh sahifa",
@@ -339,7 +335,8 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
           "common.save": "Saqlash",
           "common.cancel": "Bekor qilish",
           "common.random": "Tasodifiy manga",
-          "common.popular": "Mashhur",
+          "common.popular": "Mashhurlar",
+          "common.genre": "Taglar",
           "common.new": "Yangi",
           "common.updated": "Yangilangan",
           "common.more": "Ko'proq",
@@ -348,6 +345,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
           "manga.title": "Sarlavha",
           "manga.description": "Tavsif",
           "manga.genres": "Janrlar",
+          "manga.genre": "Janrlar",
           "manga.tags": "Teglar",
           "manga.status": "Holat",
           "manga.author": "Muallif",
@@ -359,33 +357,37 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
           "manga.featured": "Tavsiya etilgan manga",
           "manga.popular": "Mashhur manga",
           "manga.updated": "Yangilangan manga",
-        }
+        };
 
         setTranslations({
           en: enTranslations,
           ru: ruTranslations,
           uz: uzTranslations,
-        })
+        });
       } catch (error) {
-        console.error("Failed to load translations:", error)
+        console.error("Failed to load translations:", error);
       }
-    }
+    };
 
-    loadTranslations()
-  }, [])
+    loadTranslations();
+  }, []);
 
   // Save language preference to local storage when it changes
   useEffect(() => {
-    localStorage.setItem("language", language)
-  }, [language])
+    localStorage.setItem("language", language);
+  }, [language]);
 
   // Translation function
   const t = (key: string): string => {
-    if (!translations[language]) return key
-    return translations[language][key] || translations.en[key] || key
-  }
+    if (!translations[language]) return key;
+    return translations[language][key] || translations.en[key] || key;
+  };
 
-  return <LanguageContext.Provider value={{ language, setLanguage, t }}>{children}</LanguageContext.Provider>
+  return (
+    <LanguageContext.Provider value={{ language, setLanguage, t }}>
+      {children}
+    </LanguageContext.Provider>
+  );
 }
 
-export const useLanguage = () => useContext(LanguageContext)
+export const useLanguage = () => useContext(LanguageContext);
