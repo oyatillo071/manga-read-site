@@ -1,68 +1,59 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { getPopularManga } from "@/lib/api"
-import MangaCard from "@/components/manga-card"
-import { Button } from "@/components/ui/button"
-import { Loader2 } from "lucide-react"
+import { useState, useEffect } from "react";
+import { getPopularManga } from "@/lib/api";
+import MangaCard from "@/components/manga-card";
+import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
 
 export default function PopularPage() {
-  const [manga, setManga] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
-  const [page, setPage] = useState(1)
-  const [hasMore, setHasMore] = useState(true)
+  const [manga, setManga] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
 
-  const limit = 24
+  const limit = 24;
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true)
+      setLoading(true);
 
       try {
-        const data = await getPopularManga(limit)
-        setManga(data || [])
-        setHasMore(data && data.length >= limit)
+        const offset = (page - 1) * limit;
+        const data = await getPopularManga(limit, offset);
+        setManga(data || []);
+        setHasMore(data && data.length >= limit);
+        setTotalPages(Math.ceil(100 / limit));
       } catch (error) {
-        console.error("Error fetching popular manga:", error)
+        console.error("Error fetching popular manga:", error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
+    };
+
+    fetchData();
+  }, [page]);
+
+  const nextPage = () => {
+    if (loading || !hasMore) return;
+
+    setPage((prev) => prev + 1);
+  };
+
+  const prevPage = () => {
+    if (page > 1) {
+      setPage((prev) => prev - 1);
     }
+  };
 
-    fetchData()
-  }, [])
+  const goToPage = (pageNum: number) => {
+    setPage(pageNum);
+  };
 
-  const loadMore = async () => {
-    if (loading || !hasMore) return
-
-    setLoading(true)
-
-    try {
-      const nextPage = page + 1
-      const offset = page * limit
-
-      // In a real implementation, we would pass the offset to the API
-      // For now, we'll just fetch more popular manga
-      const data = await getPopularManga(limit)
-
-      if (data && data.length > 0) {
-        // Filter out duplicates
-        const newManga = data.filter((item: any) => !manga.some((existing) => existing.id === item.id))
-
-        if (newManga.length > 0) {
-          setManga((prev) => [...prev, ...newManga])
-          setPage(nextPage)
-        } else {
-          setHasMore(false)
-        }
-      } else {
-        setHasMore(false)
-      }
-    } catch (error) {
-      console.error("Error loading more manga:", error)
-    } finally {
-      setLoading(false)
-    }
+  const pageNumbers = [];
+  for (let i = 1; i <= totalPages; i++) {
+    pageNumbers.push(i);
   }
 
   if (loading && manga.length === 0) {
@@ -73,7 +64,7 @@ export default function PopularPage() {
           <p>Loading popular manga...</p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -89,24 +80,36 @@ export default function PopularPage() {
       ) : (
         <div className="rounded-lg border p-8 text-center">
           <h2 className="mb-2 text-xl font-semibold">No manga found</h2>
-          <p className="text-muted-foreground">There are no popular manga available at the moment.</p>
+          <p className="text-muted-foreground">
+            There are no popular manga available at the moment.
+          </p>
         </div>
       )}
 
-      {hasMore && (
-        <div className="mt-8 flex justify-center">
-          <Button onClick={loadMore} disabled={loading}>
-            {loading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Loading...
-              </>
-            ) : (
-              "Load More"
-            )}
-          </Button>
+      <div className="mt-8 flex justify-center items-center gap-4">
+        <Button onClick={prevPage} disabled={loading || page <= 1}>
+          Prev
+        </Button>
+
+        <div className="flex gap-2">
+          {pageNumbers.map((pageNum) => (
+            <Button
+              key={pageNum}
+              onClick={() => goToPage(pageNum)}
+              disabled={loading || page === pageNum}
+              className={`${
+                page === pageNum ? "bg-primary text-white" : "bg-gray-200"
+              }`}
+            >
+              {pageNum}
+            </Button>
+          ))}
         </div>
-      )}
+
+        <Button onClick={nextPage} disabled={loading || !hasMore}>
+          Next
+        </Button>
+      </div>
     </div>
-  )
+  );
 }

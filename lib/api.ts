@@ -79,10 +79,23 @@ export async function getFeaturedManga(limit = 12) {
 }
 
 // Get popular manga
-export async function getPopularManga(limit = 12) {
+// export async function getPopularManga(limit = 12) {
+//   try {
+//     const data = await fetchFromApi(
+//       `${BASE_URL}/manga?limit=${limit}&includes[]=cover_art&includes[]=author&order[rating]=desc&contentRating[]=safe`,
+//       { cache: "no-store" }
+//     );
+//     return data.data || [];
+//   } catch (error) {
+//     console.error("Error fetching popular manga:", error);
+//     return [];
+//   }
+// }
+
+export async function getPopularManga(limit = 12, offset = 0) {
   try {
     const data = await fetchFromApi(
-      `${BASE_URL}/manga?limit=${limit}&includes[]=cover_art&includes[]=author&order[rating]=desc&contentRating[]=safe`,
+      `${BASE_URL}/manga?limit=${limit}&offset=${offset}&includes[]=cover_art&includes[]=author&order[rating]=desc&contentRating[]=safe`,
       { cache: "no-store" }
     );
     return data.data || [];
